@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Taras Scripts" commit="85b01a66c5d6d8dc1d9c447608e8e4c96eecc373">
+<index version="1" name="Taras Scripts" commit="d7a82eb4d7fa5c634f37a86f06a4e5ef6f81f5ef">
   <category name="GUI Tools">
     <reapack name="trs_LabelGUITools.lua" type="script" desc="Label GUI Tools">
       <metadata>
