@@ -1,16 +1,7 @@
 -- @description Tracks GUI Tools Default Preset
 -- @author Taras Umanskiy
 -- @version 1.0
--- @metapackage
 -- @provides [nomain] .
--- @link http://vk.com/tarasmetal
--- @donation https://paypal.me/Tarasmetal
--- @about
---   # Tracks GUI Tools
--- @changelog
---  + Code optimizations
-
--- таблица со списком кнопок c параметрами которые нужно выводить.
 track_set = {
   {
         text = 'INSTRUM',
