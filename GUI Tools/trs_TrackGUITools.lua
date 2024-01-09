@@ -10,12 +10,13 @@
 -- @changelog
 --  + Code optimizations
 
+local r = reaper
 
 console = true
 
-function Msg(value)
+function msg(value)
   if console then
-    reaper.ShowConsoleMsg(tostring(value) .. "\n")
+    r.ShowConsoleMsg(tostring(value) .. "\n")
   end
 end
 
@@ -31,6 +32,16 @@ loadfile(lib_path .. "Core.lua")()
 GUI.req("Classes/Class - Button.lua")()
 GUI.req("Classes/Class - Textbox.lua")()
 GUI.req("Classes/Class - Label.lua")()
+
+ListDir = {}
+ListDir.scriptDir, ListDir.scriptFileName = ({r.get_action_context()})[2]:match("(.-)([^/\\]+).lua$")
+
+scriptDir = ListDir.scriptDir
+presetPath = ListDir.scriptDir .. "TrackPresets"
+presetFile = ListDir.scriptDir .. "TrackPresets" .. "/" .. "user.txt"
+saveFile = ListDir.scriptDir .. "TrackPresets" .. "/" .. "default.txt"
+
+dofile(scriptDir .. "/" .. "trs_TrackGUITools_default.lua")
 
 -- Если какая-либо из запрошенных библиотек не была найдена, прервите сценарий.
 if missing_lib then return 0 end
@@ -55,364 +66,7 @@ colors_arr = {
     navy = {0, 0, 128, 255},
 }
 
--- таблица со списком кнопок c параметрами которые нужно выводить.
-local track_settings = {
-  {
-        text = 'INSTRUM',
-        color = false,
-        text_left = 'Delay',
-        text_right = 'Reverb',
-        text_center = 'Filter',
-        text_add = 'Mod',
-        text_end = 'FX',
-        pan = false,
 
-    },
-    {
-        text = '',
-        color = false,
-        text_left = 'Click',
-        text_right = 'MUSIC',
-        text_center = 'NEW',
-        text_add = 'OLD',
-        text_end = 'DRM',
-        pan = false,
-
-    },
-     {
-        text = 'REFERENCE',
-        color = false,
-        text_left = 'MIX',
-        text_right = 'DEMO',
-        text_center = 'PlayBack',
-        text_add = 'LIVE',
-        text_end = 'STUDIO',
-
-    },
-    {
-        text = 'MIX',
-        color = false,
-        text_left = 'SUM',
-        text_right = 'FX',
-        text_center = 'DBL',
-        text_add = 'BUS',
-        pan = 0,
-
-    },
-    {
-        text = 'Drums',
-        color = false,
-        text_left = 'Comp',
-        text_right = 'PR',
-        text_center = 'Verb',
-        text_add = 'MIDI',
-        col_fill = 'red',
-        pan = 5,
-    },
-    {
-        text = 'Kick',
-        color = false,
-        text_left = 'in',
-        text_right = 'out',
-        text_center = 'Sub',
-        text_add = 'DIR',
-        pan = 10,
-    },
-    {
-        text = 'Snare',
-        color = false,
-        text_left = 'Top',
-        text_right = 'Bot',
-        text_center = 'Rim',
-        text_add = 'trg',
-        pan = 15,
-
-    },
-     {
-        text = 'Clap',
-        color = false,
-        text_left = 'L',
-        text_right = 'R',
-        text_center = '1',
-        text_add = '2',
-        pan = 20,
-
-    },
-    {
-        text = 'Tom',
-        color = false,
-        text_left = '1',
-        text_right = '2',
-        text_center = '3',
-        text_add = 'trg',
-        pan = 25,
-
-    },
-    {
-        text = 'Tom',
-        color = false,
-        text_left = 'Alt',
-        text_right = 'Rack',
-        text_center = 'Floor',
-        text_add = 'trg',
-        pan = 30,
-
-    },
-    {
-        text = 'HiHat',
-        color = false,
-        text_left = 'O',
-        text_right = 'C',
-        text_center = '1',
-        text_add = '2',
-        pan = 35,
-    },
-    {
-        text = 'Crash',
-        color = false,
-        text_left = 'L',
-        text_right = 'R',
-        text_center = '3',
-        text_add = '4',
-        pan = 40,
-
-    },
-    {
-        text = 'China',
-        color = false,
-        text_left = 'L',
-        text_right = 'R',
-        text_center = '5',
-        text_add = '6',
-        pan = 45,
-
-    },
-    {
-        text = 'Ride',
-        color = false,
-        text_left = 'Bell',
-        text_right = '',
-        text_center = '7',
-        text_add = '8',
-        pan = 50,
-    },
-    {
-        text = 'Splash',
-
-        color = false,
-        text_left = 'L',
-        text_right = 'R',
-        text_center = '9',
-        text_add = '10',
-        pan = 55,
-    },
-    {
-        text = 'OH',
-
-        color = false,
-        text_left = 'L',
-        text_right = 'R',
-        text_center = 'OverHeads',
-        text_add = 'BUS',
-        pan = 60,
-
-    },
-    {
-        text = 'RM',
-        color = false,
-        text_left = 'Mid',
-        text_right = 'Side',
-        text_center = 'Mono',
-        text_add = 'BUS',
-        pan = 65,
-
-    },
-    {
-        text = 'Room',
-        color = false,
-        text_left = 'Near',
-        text_right = 'Far',
-        text_center = 'Crush',
-        text_add = 'Room',
-        pan = 70,
-
-    },
-    -- {
-    --     text = '',
-    --     color = false,
-    --     text_left = '',
-    --     text_right = '',
-    --     text_center = '',
-    --     text_add = '',
-    --     text_end = '',
-    --     pan = false,
-    -- },
-     {
-        text = '',
-        color = false,
-        text_left = 'on_Axis',
-        text_right = 'off_Axis',
-        text_center = 'Cap',
-        text_add = 'Cone',
-        text_end = 'Edge',
-        pan = false,
-    },
-     {
-        text = 'BASS',
-        color = false,
-        text_left = 'DI',
-        text_right = 'Sub',
-        text_center = 'Lo',
-        text_add = 'Hi',
-        pan = 75,
-
-    },
-     {
-        text = 'GTR',
-        color = false,
-        text_left = 'L',
-        text_right = 'R',
-        text_center = 'DI',
-        text_add = 'BUS',
-        pan = 80,
-
-    },
-     {
-        text = 'GTR',
-        color = false,
-        text_left = 'Cln',
-        text_right = 'Dist',
-        text_center = 'Amp',
-        text_add = 'Cab',
-        pan = 85,
-
-    },
-     {
-        text = 'GTRS',
-        color = false,
-        text_left = 'rtm',
-        text_right = 'lead',
-        text_center = 'solo',
-        text_add = 'Add',
-        pan = 90,
-
-    },
-    {
-        text = '',
-        color = false,
-        text_left = 'Dyn',
-        text_right = 'Cond',
-        text_center = 'ЗБС',
-        text_add = 'Tape',
-        text_end = 'Warm',
-        pan = false,
-
-    },
-     {
-        text = 'Synth',
-        color = false,
-        text_left = 'Lead',
-        text_right = 'Chrds',
-        text_center = 'Pluck',
-        text_add = 'Arp',
-        pan = 95,
-
-    },
-     {
-        text = 'Synths',
-        color = false,
-        text_left = 'Pad',
-        text_right = 'SEQ',
-        text_center = 'Atmo',
-        text_add = 'Sub',
-        pan = 100,
-
-    },
-     {
-        text = 'Keys',
-        color = false,
-        text_left = 'Хуейс',
-        text_right = 'Piano',
-        text_center = 'Melody',
-        text_add = 'BUS',
-        pan = false,
-
-    },
-    {
-        text = 'Strings',
-        color = false,
-        text_left = 'Ensemble',
-        text_right = 'Cellos',
-        text_center = 'Violas',
-        text_add = 'Violins',
-        pan = false,
-
-    },
-    {
-        text = '',
-        color = false,
-        text_left = 'SingAlong',
-        text_right = 'SFX',
-        text_center = 'Pitch',
-        text_add = 'Dry',
-        text_end = 'Wet',
-        pan = false,
-
-    },
-    {
-        text = 'Vox',
-        color = false,
-        text_left = 'DBL',
-        text_right = 'BCK',
-        text_center = 'Low',
-        text_add = 'Mid',
-        text_end = 'High',
-        pan = false,
-
-    },
-    {
-        text = 'Vox',
-        color = false,
-        text_left = 'Cln',
-        text_right = 'Scr',
-        text_center = 'Grl',
-        text_add = 'Wishper',
-        text_end = 'Harmony',
-        pan = false,
-
-    },
-     {
-        text = 'Vox',
-        color = false,
-        text_left = 'Verse',
-        text_right = 'Chorus',
-        text_center = 'Main',
-        text_add = 'Flow',
-        text_end = 'BUS',
-        pan = false,
-
-    },
-    --  {
-    --     text = '',
-    --     color = false,
-    --     text_left = '',
-    --     text_right = '',
-    --     text_center = '',
-    --     text_add = '',
-    -- pan = false,
-
-    -- },
-}
-    -- {
-        -- text = '',
-        -- color = false,
-        -- text_left = '',
-        -- text_right = '',
-        -- text_center = '',
-        -- text_add = '',
-        -- pan = false,
-
-    -- },
 -- заголовок окна
 -- GUI.name = "• RENAME TRACKS TOOLS •"
 -- еще параметры для гуя включая ширину и высоту окна (при добавлении кнопок нужно увеличить высоту окна соответственно)
@@ -562,6 +216,113 @@ end
 --     shadow = false
 -- })
 
+
+-- таблица со списком кнопок c параметрами которые нужно выводить.
+function read_file(path)
+    local open = io.open
+    local file = open(path, "rb") -- r read mode and b binary mode
+    if not file then
+        return nil
+    end
+    local content = file:read "*a" -- *a or *all reads the whole file
+    file:close()
+    return content
+end
+
+function str_split (inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = {}
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        table.insert(t, str)
+    end
+    return t
+end
+
+function parse_simple_preset_content(content)
+    content = str_split(content, "\n")
+    res = {}
+    for rowKey, rowValue in ipairs(content) do
+        local row = str_split(rowValue, ',')
+        table.insert(res, {
+            text = row[1],
+            color = row[2] == 'true',
+            text_left = row[3],
+            text_center = row[4],
+            text_right = row[5],
+            text_add = row[6],
+            text_end = row[7],
+            pan = row[8] == 'true',
+        })
+    end
+    return res
+end
+
+
+function SavePresets(saveFile,track_settings)
+    local file = io.open(saveFile, "w") -- Открываем файл для записи
+    for _, setting in ipairs(track_settings) do
+        local text = setting.text ~= '' and setting.text or '_'
+        local color = setting.color and 'true' or 'false'
+        local text_left = setting.text_left
+        local text_right = setting.text_right
+        local text_center = setting.text_center
+        local text_add = setting.text_add
+        local text_end = setting.text_end
+        local pan = setting.pan and tostring(setting.pan) or 'false'
+
+        local line = string.format("%s,%s,%s,%s,%s,%s,%s,%s\n",
+            text, color, text_left, text_right, text_center, text_add, text_end, pan
+        )
+        file:write(line) -- Записываем строку в файл
+    end
+
+    file:close() -- Закрываем файл
+end
+
+function LoadPresets(filename)
+    local track_settings = {} -- Создаем пустой массив для хранения данных
+    local file = io.open(filename, "r") -- Открываем файл для чтения
+    if file then
+        for line in file:lines() do
+            local values = {}
+            for value in line:gmatch("[^,]+") do
+                 table.insert(values, value ~= 'nil' and value or false)
+            end
+
+            local setting = {
+                text = values[1] ~= '_' and values[1] or '',
+                color = values[2] == true,
+                text_left = values[3]  or false,
+                text_right = values[4]  or false,
+                text_center = values[5]  or false,
+                text_add = values[6] or false,
+                text_end = values[7] or false,
+                pan = values[8] ~= 'nil' and tonumber(values[8]) or false
+                -- pan = values[8] ~= 'false' and tonumber(values[8]) or false
+            }
+
+            table.insert(track_settings, setting) -- Добавляем полученные данные в массив
+        end
+
+        file:close() -- Закрываем файл
+    end
+
+    return track_settings
+end
+
+
+local fileExists = reaper.file_exists(presetFile)
+
+if fileExists then
+  track_settings = LoadPresets(presetFile)
+else
+  r.RecursiveCreateDirectory(presetPath, 0)
+  track_settings = track_set
+  SavePresets(presetFile,track_set)
+  SavePresets(saveFile,track_set)
+end
 
 
 window_width_array = {}
