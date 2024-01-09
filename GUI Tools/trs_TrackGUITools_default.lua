@@ -2,7 +2,7 @@
 -- @author Taras Umanskiy
 -- @version 1.0
 -- @metapackage
--- @provides [main] .
+-- @provides [nomain] .
 -- @link http://vk.com/tarasmetal
 -- @donation https://paypal.me/Tarasmetal
 -- @about
