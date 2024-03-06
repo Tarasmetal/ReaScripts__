@@ -166,7 +166,7 @@ if not widgets.cheads then
         r.ImGui_SameLine(ctx)
         btnFuncCol('Inx Add', 'MarkerReNameIndex', 'Set all markers new index', 9,0) -- Load lua file script
         r.ImGui_SameLine(ctx)
-        btnFuncCol('Inx Rem', 'MarkerDelIndex', 'Delete all markers index', 4,0) -- Load lua file script
+        btnFuncCol('Inx Rem', 'MarkerDelIndex', 'Delete all markers index (TESTED FUNC - work with bugs !!!)', 7,0) -- Load lua file script
         r.ImGui_SameLine(ctx)
         r.ImGui_TextDisabled(ctx, '|')
         r.ImGui_SameLine(ctx)
@@ -333,6 +333,12 @@ if not widgets then
               end
         r.ImGui_PopStyleColor(ctx, 3)
         r.ImGui_PopID(ctx)
+        r.ImGui_SameLine(ctx)
+
+        r.ImGui_SameLine(ctx)
+        r.ImGui_Text(ctx, '|')
+        r.ImGui_SameLine(ctx)
+        btnFuncCol('PLAY STOP', 'StopRegions', 'Add STOP Markers to End of Regions', 0,0) -- Load lua file script
         r.ImGui_SameLine(ctx)
         r.ImGui_Text(ctx, '>')
         r.ImGui_Spacing(ctx)

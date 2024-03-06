@@ -82,6 +82,23 @@ end
 --     return timestamp
 -- end
 
+function StopRegions()
+    local markerIndex = 0
+    local regionIndex = 0
+    local ret, isrgn, pos, rgnend, name, markrgnindexnumber
+    local num_markers, num_regions = r.CountProjectMarkers(0)
+    local total_count = num_markers + num_regions
+
+    for i = 0, total_count - 1 do
+        -- Проверка на nil
+        ret, isrgn, pos, rgnend, name, markrgnindexnumber = r.EnumProjectMarkers(i)
+        if ret ~= nil and isrgn then
+            r.AddProjectMarker(0, false, rgnend, 0, "!1016", 0)
+        end
+    end
+end
+
+
 function hex2rgb(HEX_COLOR)
 -- https://gist.github.com/jasonbradley/4357406
     if HEX_COLOR == nil then
@@ -545,7 +562,7 @@ function MarkerReNameIndex()
         marker_names[new_name] = marker_names[new_name] + 1
         new_name = new_name  .. " " ..  marker_names[new_name]
       else
-        marker_names[new_name] = 0
+        marker_names[new_name] = 1
       end
         -- marker_names[new_name]
       if new_name ~= name then
@@ -557,27 +574,54 @@ function MarkerReNameIndex()
   r.UpdateArrange()
 end
 
+
+-- function MarkerDelIndex()
+--     -- Получаем количество маркеров в проекте
+--     local numMarkers = {}
+--     local numMarkers = reaper.CountProjectMarkers(0)
+
+--     -- Проходимся по каждому маркеру
+--     for i = 0, numMarkers - 1 do
+--         local retval, isrgn, pos, rgnend, name, m_id, color = reaper.EnumProjectMarkers3(0, i)
+
+--         -- Проверяем, является ли маркер обычным (не регионом) и не содержит имена "=START" или "=END"
+--         if not isrgn and name ~= "=START" and name ~= "=END" then
+--             -- Сохраняем цвет маркера
+--             local r, g, b = reaper.ColorFromNative(color)
+--             local hexColor = string.format('0xFF%x%x%xFF', r, g, b)
+--         	local numericColor = tonumber(hexColor, 16)
+--             -- Обновляем имя маркера и восстанавливаем цвет
+--             local newColor = reaper.ColorToNative(r, g, b)
+--             -- Удаляем последние цифры из имени маркера
+--             local newName = name:gsub("%d*$", "")
+
+--             reaper.SetProjectMarker3(0, i, isrgn, pos, rgnend, newName, m_id, color)
+--         end
+--     end
+--         reaper.UpdateArrange()
+-- end
+
 function MarkerDelIndex()
-  local numMarkers = r.CountProjectMarkers(0)
-  for i = 0, numMarkers - 1 do
-    local _, isrgn, pos, rgnend, name, markrgnindexnumber, color = r.EnumProjectMarkers3(0, i)
-    local firstWord = name:match("([^%s]+)")
-    if not isrgn then
-      r.DeleteProjectMarkerByIndex(0, markrgnindexnumber)
-      r.AddProjectMarker2(0, false, pos, 0, firstWord, -1, color)
+  -- Получаем количество маркеров в проекте
+  -- local numMarkers = {}
+    local numMarkers = reaper.CountProjectMarkers(0)
+
+    -- Проходимся по каждому маркеру
+    for i = 0, numMarkers - 1 do
+        -- local retval, isrgn, pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers3(0, i)
+        local retval, isrgn, pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers3(0, i)
+
+        -- Проверяем, является ли маркер обычным (не регионом) и не содержит имена "=START" или "=END"
+        if not isrgn and name ~= "=START" and name ~= "=END" then
+            -- Удаляем последние цифры из имени маркера
+            -- local id = markrgnindexnumber
+            -- local newPos = pos
+            local newName = name:gsub("%s%d*$", "")
+
+            -- Обновляем имя маркера
+            reaper.SetProjectMarker3(0, i, isrgn, pos, rgnend, newName, markrgnindexnumber, nil)
+        end
     end
-  end
-  r.UpdateArrange()
 end
 
 
--- function MarkerDelIndex()
---   local numMarkers = r.CountProjectMarkers(0)
---   for i = 0, numMarkers - 1 do
---     local _, _, pos, _, name, _ = r.EnumProjectMarkers(i)
---     local firstWord = name:match("([^%s]+)")
---     r.DeleteProjectMarkerByIndex(0, i)
---     r.AddProjectMarker2(0, false, pos, 0, firstWord, i, 1)
---   end
---   r.UpdateArrange()
--- end
