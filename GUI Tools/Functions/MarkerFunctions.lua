@@ -82,6 +82,32 @@ end
 --     return timestamp
 -- end
 
+-- function StopRegions()
+--     local markerIndex = 0
+--     local regionIndex = 0
+--     local ret, isrgn, pos, rgnend, name, markrgnindexnumber
+--     local num_markers, num_regions = r.CountProjectMarkers(0)
+--     local total_count = num_markers + num_regions
+
+--     -- Удаление всех маркеров с именем "!1016"
+--     for i = total_count - 1, 0, -1 do
+--         ret, isrgn, pos, rgnend, name, markrgnindexnumber = r.EnumProjectMarkers(i)
+--         if ret ~= nil and name == "!1016" then
+--             r.DeleteProjectMarkerByIndex(0, i)
+--         end
+--     end
+
+--     for i = 0, total_count - 1 do
+--         ret, isrgn, pos, rgnend, name, markrgnindexnumber = r.EnumProjectMarkers(i)
+--         if ret ~= nil and isrgn then
+--             r.AddProjectMarker(0, false, rgnend, 0, "!1016", 0)
+--             -- r.AddProjectMarker(0, false, rgnend, 0, "!1016", markerIndex)
+--             markerIndex = markerIndex + 1
+--         end
+--     end
+-- end
+
+
 function StopRegions()
     local markerIndex = 0
     local regionIndex = 0
@@ -89,11 +115,20 @@ function StopRegions()
     local num_markers, num_regions = r.CountProjectMarkers(0)
     local total_count = num_markers + num_regions
 
+    -- Удаление всех маркеров с именем "!1016"
+    for i = total_count - 1, 0, -1 do
+        ret, isrgn, pos, rgnend, name, markrgnindexnumber = r.EnumProjectMarkers(i)
+        if ret ~= nil and name == "!1016" then
+            r.DeleteProjectMarkerByIndex(0, i)
+        end
+    end
+
     for i = 0, total_count - 1 do
-        -- Проверка на nil
         ret, isrgn, pos, rgnend, name, markrgnindexnumber = r.EnumProjectMarkers(i)
         if ret ~= nil and isrgn then
-            r.AddProjectMarker(0, false, rgnend, 0, "!1016", 0)
+            -- Изменяем цвет маркера на чёрный
+            r.AddProjectMarker(0, false, rgnend, 0xFF000000, "!1016", markerIndex)
+            markerIndex = markerIndex + 1
         end
     end
 end

@@ -338,7 +338,7 @@ if not widgets then
         r.ImGui_SameLine(ctx)
         r.ImGui_Text(ctx, '|')
         r.ImGui_SameLine(ctx)
-        btnFuncCol('PLAY STOP', 'StopRegions', 'Add STOP Markers to End of Regions', 0,0) -- Load lua file script
+        btnFuncCol('STOP PL', 'StopRegions', 'Add STOP Markers to End of Regions', 0,0) -- Load lua file script
         r.ImGui_SameLine(ctx)
         r.ImGui_Text(ctx, '>')
         r.ImGui_Spacing(ctx)
